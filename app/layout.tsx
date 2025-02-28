@@ -8,7 +8,10 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "High Boy Newsletter",
   description: "Fique por dentro das novidades do High Boy",
-    generator: 'v0.dev'
+  icons: {
+    icon: "/favicon.ico", 
+  },
+  keywords: ["high code", "high boy", "hardware", "cibersegurança", "hardware hacking", "hacker", "high boy hardware"],
 }
 
 export default function RootLayout({
