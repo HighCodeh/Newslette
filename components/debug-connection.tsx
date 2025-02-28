@@ -10,7 +10,7 @@ export function DebugConnection() {
   const checkConnection = async () => {
     setLoading(true)
     try {
-      const response = await fetch("/api/check-connection", {
+      const response = await fetch("/api/subscribe/check-connection", {
         method: "GET",
       })
 

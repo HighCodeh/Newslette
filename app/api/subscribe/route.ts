@@ -1,47 +1,55 @@
 import { createClient } from "@supabase/supabase-js"
 import { NextResponse } from "next/server"
 
-const supabaseUrl = "https://your-project-id.supabase.co"
-const supabaseKey = "your-actual-service-role-key"
-
-console.log("Supabase URL:", supabaseUrl)
-console.log("Supabase Key:", supabaseKey ? "[REDACTED]" : "undefined")
-
-let supabase: ReturnType<typeof createClient> | null = null
-
-if (supabaseUrl && supabaseKey) {
-  try {
-    supabase = createClient(supabaseUrl, supabaseKey)
-    console.log("Supabase client created successfully")
-  } catch (error) {
-    console.error("Error creating Supabase client:", error)
-  }
-} else {
-  console.error("Missing Supabase environment variables")
-}
-
 export async function POST(request: Request) {
-  if (!supabase) {
-    return NextResponse.json({ error: "Supabase client not initialized" }, { status: 500 })
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!supabaseUrl || !supabaseKey) {
+    return NextResponse.json(
+      {
+        error: "Missing environment variables",
+        vars: {
+          url: supabaseUrl ? "✓" : "✗",
+          key: supabaseKey ? "✓" : "✗",
+        },
+      },
+      { status: 500 },
+    )
   }
 
   try {
+    const supabase = createClient(supabaseUrl, supabaseKey)
     const { email, name } = await request.json()
 
     if (!email) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 })
     }
 
+    // Verificar se o email já existe
+    const { data: existingUser } = await supabase
+      .from("newsletter_subscribers")
+      .select("email")
+      .eq("email", email)
+      .single()
+
+    if (existingUser) {
+      return NextResponse.json({ error: "Este email já está inscrito" }, { status: 409 })
+    }
+
     const { error } = await supabase
       .from("newsletter_subscribers")
       .insert([{ email, name, subscribed_at: new Date().toISOString() }])
 
-    if (error) throw error
+    if (error) {
+      console.error("Erro Supabase:", error)
+      return NextResponse.json({ error: `Erro ao inscrever: ${error.message}` }, { status: 500 })
+    }
 
-    return NextResponse.json({ message: "Subscribed successfully" }, { status: 200 })
-  } catch (error) {
-    console.error("Error subscribing:", error)
-    return NextResponse.json({ error: "Failed to subscribe" }, { status: 500 })
+    return NextResponse.json({ message: "Inscrito com sucesso" }, { status: 200 })
+  } catch (error: any) {
+    console.error("Erro ao processar inscrição:", error)
+    return NextResponse.json({ error: `Falha na inscrição: ${error.message}` }, { status: 500 })
   }
 }
 

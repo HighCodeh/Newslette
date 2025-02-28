@@ -44,7 +44,11 @@ export default function NewsletterForm() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || "Falha na requisição")
+        if (response.status === 409) {
+          throw new Error("Este email já está inscrito na newsletter.")
+        } else {
+          throw new Error(data.error || "Falha na requisição")
+        }
       }
 
       setSuccess(true)
