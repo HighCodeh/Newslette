@@ -34,10 +34,12 @@ export default function Home() {
         </div>
 
         <div className="mt-16 relative">
+      <a href="https://www.highboy.com.br" target="_blank" rel="noopener noreferrer">
           <button className="bg-[#8c2aff]/80 hover:bg-[#8c2aff] text-white py-3.5 px-10 rounded-full border border-[#8c2aff]/50 transition-all duration-300 transform hover:scale-105 backdrop-blur-sm shadow-[0_0_15px_rgba(140,42,255,0.3)]">
             Conheça mais
           </button>
-        </div>
+        </a> 
+      </div>
       </div>
 
 
